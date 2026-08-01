@@ -3,17 +3,16 @@
 set -euxo pipefail
 
 # C lib
-if [[ "${target_platform}" == win-* ]]; then
-  B_ARGS=('-dll' 'flavour=mingw64' 'CC=x86_64-w64-mingw32-gcc' 'AR=llvm-ar')
-elif [[ "${target_platform}" == linux-* ]]; then
+if [[ "${target_platform:-}" == linux-* ]]; then
   B_ARGS=('-shared' '-Wl,-soname=libblst.so')
-elif [[ "${target_platform}" == osx-64 ]]; then
+elif [[ "${target_platform:-}" == osx-64 ]]; then
   B_ARGS=('-shared')
-elif [[ "${target_platform}" == osx-arm64 ]]; then
+elif [[ "${target_platform:-}" == osx-arm64 ]]; then
   export CFLAGS="${CFLAGS} -D__BLST_PORTABLE__"
   B_ARGS=('-shared')
 else
-  B_ARGS=('-shared')
+  target_platform="win-"
+  B_ARGS=('-dll' 'flavour=mingw64' 'CC=x86_64-w64-mingw32-gcc' 'AR=llvm-ar')
 fi
 
 bash ./build.sh "${B_ARGS[@]}"
